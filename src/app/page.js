@@ -1,95 +1,108 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import Pagina from "@/components/Pagina";
+import { useState } from "react";
+import { Button, Card, Container, Form, Modal, Row } from "react-bootstrap";
+
+const taxaConversao = {
+  dolar: 0.2,
+  euro: 0.18,
+  bitcoin: 0.000003,
+};
+
+function CambistaPage() {
+  const [showModal, setShowModal] = useState(false);
+  const [moeda, setMoeda] = useState("");
+  const [real, setReal] = useState(0);
+  const [resultado, setResultado] = useState(0);
+
+  function converter() {
+    const valorConvertido = real * taxaConversao[moeda];
+    setResultado(
+      valorConvertido.toLocaleString("pt-BR", { minimumFractionDigits: 2 })
+    );
+    setShowModal(true);
+  }
+
+  function handleImage(moeda) {
+    if (moeda === "dolar") {
+      return "/dolar.png";
+    } else if (moeda === "euro") {
+      return "/euro.png";
+    } else if (moeda === "bitcoin") {
+      return "/bitcoin.png";
+    } else {
+      return "/mood.png";
+    }
+  }
+
+  function limpar() {
+    setReal(0.0);
+    setMoeda("");
+    setResultado(0);
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <Pagina titulo="Conversor de Moedas">
+      <Container className="py-2 text-center w-25">
+        <Card.Img src={handleImage(moeda)} />
+      </Container>
+      <Form>
+        <Row md={2}>
+          <Container>
+            <Form.Group className="mb-3">
+              <Form.Label>Real</Form.Label>
+              <Form.Control
+                type="number"
+                name="real"
+                value={real}
+                onChange={(e) => setReal(e.target.value)}
+              />
+            </Form.Group>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+            <Form.Group className="mb-3">
+              <Form.Label>Escolha a moeda:</Form.Label>
+              <Form.Select
+                name="moeda"
+                value={moeda}
+                onChange={(e) => setMoeda(e.target.value)}
+              >
+                <option disabled value="">
+                  Selecione
+                </option>
+                <option value="dolar">Dólar</option>
+                <option value="euro">Euro</option>
+                <option value="bitcoin">Bitcoin</option>
+              </Form.Select>
+            </Form.Group>
+          </Container>
+        </Row>
+        <Form.Group className="mb-3 text-center">
+          <Button variant="success" onClick={converter}>
+            Converter
+          </Button>
+          <Button variant="secondary" className="ms-2" onClick={limpar}>
+            Limpar
+          </Button>
+        </Form.Group>
+      </Form>
+
+      {/* Modal do Resultado */}
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Resultado</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Conversão: ({resultado})</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Fechar
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </Pagina>
   );
 }
+
+export default CambistaPage;
